@@ -112,6 +112,8 @@ export const getOrderById = async (id) => {
   if (!order) {
     throw new ApiError(404, "Order not found");
   }
+  return order;
+};
 
 export const createOrder = async (payload, userId) => {
   const items = await buildOrderItems(payload.items);
