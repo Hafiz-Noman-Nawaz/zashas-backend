@@ -5,9 +5,7 @@ const errorHandler = (err, req, res, next) => {
   const message = err.message || "Internal Server Error";
   const details = err instanceof ApiError ? err.details : undefined;
 
-  if (req.app.get("env") !== "production") {
-    console.error(err);
-  }
+  console.error("API Error:", err);
 
   res.status(statusCode).json({
     success: false,

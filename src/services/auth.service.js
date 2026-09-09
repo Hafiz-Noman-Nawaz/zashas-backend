@@ -24,7 +24,12 @@ export const login = async ({ email, password }) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
-  const matches = await bcrypt.compare(password, user.passwordHash);
+  const hash = user.passwordHash || user.password;
+  if (!hash) {
+    throw new ApiError(401, "Invalid credentials");
+  }
+
+  const matches = await bcrypt.compare(password, hash);
   if (!matches) {
     throw new ApiError(401, "Invalid credentials");
   }
