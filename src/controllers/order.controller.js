@@ -33,17 +33,24 @@ export const createOrder = asyncHandler(async (req, res) => {
 
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { params, body } = req.validated;
-  const order = await orderService.updateOrderStatus(params.id, body.status);
+  const order = await orderService.updateOrderStatus(params.id, body.status, body.courierDetails);
 
   await activityService.logActivitySafe({
     action: "order_status_updated",
     entityType: "order",
     entityId: order.id,
     actorId: req.user?.id,
-    message: `Order status updated: ${order.status}`
+    message: `Order status updated: ${order.status}${body.courierDetails?.trackingNumber ? ` (Tracking: ${body.courierDetails.trackingNumber})` : ""}`
   });
 
   res.json({ success: true, data: order });
+});
+
+export const trackOrder = asyncHandler(async (req, res) => {
+  const { query } = req.validated;
+  const trackingData = await orderService.trackOrder(query);
+
+  res.json({ success: true, data: trackingData });
 });
 
 export const deleteOrder = asyncHandler(async (req, res) => {

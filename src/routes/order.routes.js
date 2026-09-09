@@ -5,7 +5,8 @@ import {
   deleteOrder,
   getOrderById,
   listOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  trackOrder
 } from "../controllers/order.controller.js";
 import authenticate from "../middlewares/authenticate.js";
 import requireRole from "../middlewares/require-role.js";
@@ -14,10 +15,18 @@ import {
   createOrderSchema,
   listOrdersSchema,
   orderIdSchema,
-  updateOrderStatusSchema
+  updateOrderStatusSchema,
+  trackOrderSchema
 } from "../validators/order.schema.js";
 
 const router = Router();
+
+// Public customer tracking route
+router.get(
+  "/track",
+  validateRequest(trackOrderSchema),
+  trackOrder
+);
 
 router.get(
   "/",

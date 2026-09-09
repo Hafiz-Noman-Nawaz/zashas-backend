@@ -62,6 +62,22 @@ export const updateOrderStatusSchema = z.object({
     id: z.string().regex(objectIdRegex, "Invalid id")
   }),
   body: z.object({
-    status: orderStatusSchema
+    status: orderStatusSchema,
+    courierDetails: z.object({
+      courierName: z.string().optional(),
+      trackingNumber: z.string().optional(),
+      trackingUrl: z.string().optional(),
+      dispatchedAt: z.coerce.date().optional()
+    }).optional()
   })
 });
+
+export const trackOrderSchema = z.object({
+  query: z.object({
+    orderId: z.string().optional(),
+    phone: z.string().optional()
+  }).refine((data) => Boolean(data.orderId || data.phone), {
+    message: "Either orderId or phone must be provided to track an order"
+  })
+});
+

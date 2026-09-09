@@ -143,10 +143,18 @@ export const createOrder = async (payload, userId) => {
   return order;
 };
 
-export const updateOrderStatus = async (id, status) => {
+export const updateOrderStatus = async (id, status, courierDetails) => {
+  const updatePayload = { status };
+  if (courierDetails) {
+    updatePayload.courierDetails = {
+      ...courierDetails,
+      dispatchedAt: courierDetails.dispatchedAt || (status === "shipped" ? new Date() : undefined)
+    };
+  }
+
   const order = await Order.findByIdAndUpdate(
     id,
-    { status },
+    updatePayload,
     { new: true }
   );
 
@@ -157,6 +165,56 @@ export const updateOrderStatus = async (id, status) => {
   return order;
 };
 
+export const trackOrder = async ({ orderId, phone }) => {
+  let query = {};
+  if (orderId) {
+    const trimmed = orderId.trim();
+    if (/^[0-9a-fA-F]{24}$/.test(trimmed)) {
+      query._id = trimmed;
+    } else {
+      query._id = null; // invalid objectId won't crash
+    }
+  }
+
+  if (phone) {
+    const cleanPhone = phone.replace(/[^0-9+]/g, "");
+    if (query._id) {
+      query["customerDetails.phone"] = { $regex: cleanPhone.slice(-7) };
+    } else {
+      query = { "customerDetails.phone": { $regex: cleanPhone.slice(-7) } };
+    }
+  }
+
+  const order = await Order.findOne(query).sort({ createdAt: -1 });
+  if (!order) {
+    throw new ApiError(404, "No order found matching the provided details");
+  }
+
+  return {
+    orderId: order._id,
+    status: order.status,
+    totalAmount: order.totalAmount,
+    currency: order.currency,
+    createdAt: order.createdAt,
+    customerDetails: {
+      fullName: order.customerDetails?.fullName,
+      city: order.customerDetails?.city,
+      province: order.customerDetails?.province
+    },
+    paymentDetails: {
+      method: order.paymentDetails?.method,
+      isVerified: order.paymentDetails?.isVerified
+    },
+    courierDetails: order.courierDetails || null,
+    items: order.items.map((i) => ({
+      title: i.title,
+      quantity: i.quantity,
+      price: i.price,
+      selectedVariant: i.selectedVariant
+    }))
+  };
+};
+
 export const deleteOrder = async (id) => {
   const order = await Order.findByIdAndDelete(id);
   if (!order) {
@@ -165,3 +223,4 @@ export const deleteOrder = async (id) => {
 
   return order;
 };
+

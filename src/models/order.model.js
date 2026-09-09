@@ -39,6 +39,12 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled"],
       default: "pending"
+    },
+    courierDetails: {
+      courierName: { type: String, default: "" }, // e.g. 'Trax', 'TCS', 'Leopards', 'PostEx'
+      trackingNumber: { type: String, default: "" },
+      trackingUrl: { type: String, default: "" },
+      dispatchedAt: { type: Date }
     }
   },
   { timestamps: true }
