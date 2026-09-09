@@ -57,6 +57,7 @@ const buildOrderItems = async (items) => {
       productId: product.id,
       title: product.title,
       category: product.category,
+      selectedVariant: item.selectedVariant || "",
       quantity: item.quantity,
       price
     };
@@ -128,6 +129,13 @@ export const createOrder = async (payload, userId) => {
     paymentDetails: payload.paymentDetails,
     createdBy: userId || undefined
   });
+
+  // Deduct inventory stock for purchased items
+  for (const item of items) {
+    await Product.findByIdAndUpdate(item.productId, {
+      $inc: { stock: -item.quantity }
+    }).catch((err) => console.error("Failed to deduct stock for product:", item.productId, err));
+  }
 
   // Fire and forget email confirmation
   sendOrderConfirmationEmail(order).catch(console.error);

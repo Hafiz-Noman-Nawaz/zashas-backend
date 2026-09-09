@@ -5,6 +5,7 @@ const orderItemSchema = new mongoose.Schema(
     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
     title: { type: String, required: true },
     category: { type: String, default: "" },
+    selectedVariant: { type: String, default: "" },
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 }
   },
@@ -30,6 +31,9 @@ const orderItemSchema = new mongoose.Schema(
     },
     paymentDetails: {
       method: { type: String, required: true },
+      isVerified: { type: Boolean, default: false },
+      transactionId: { type: String, default: "" },
+      verifiedAt: { type: Date }
     },
     status: {
       type: String,

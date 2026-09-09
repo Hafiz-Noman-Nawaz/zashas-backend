@@ -8,7 +8,7 @@ const env = {
   mongoUri: process.env.MONGODB_URI || "",
   corsOrigin: process.env.CORS_ORIGIN 
     ? process.env.CORS_ORIGIN.split(",").map(origin => origin.trim()) 
-    : "http://localhost:3000",
+    : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || "",
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || "",
   accessTokenTtl: process.env.ACCESS_TOKEN_TTL || "15m",

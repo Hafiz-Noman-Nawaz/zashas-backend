@@ -24,16 +24,20 @@ const apiLimiter = rateLimit({
 	legacyHeaders: false
 });
 
-const sanitizeInput = (value) => {
+const sanitizeInput = (value, parentKey = "") => {
 	if (typeof value === "string") {
+		// Do not mutate passwords or URLs (which may have query params with &)
+		if (parentKey.toLowerCase().includes("password") || value.startsWith("http://") || value.startsWith("https://")) {
+			return value;
+		}
 		return xss(value);
 	}
 	if (Array.isArray(value)) {
-		return value.map((item) => sanitizeInput(item));
+		return value.map((item) => sanitizeInput(item, parentKey));
 	}
 	if (value && typeof value === "object") {
 		return Object.keys(value).reduce((acc, key) => {
-			acc[key] = sanitizeInput(value[key]);
+			acc[key] = sanitizeInput(value[key], key);
 			return acc;
 		}, {});
 	}

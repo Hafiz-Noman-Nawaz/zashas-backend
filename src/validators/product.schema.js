@@ -35,7 +35,7 @@ const productBodySchema = z.object({
   description: z.string().optional(),
   price: z.coerce.number().nonnegative(),
   discountedPrice: z.coerce.number().nonnegative().optional(),
-  images: z.array(z.string().url()).optional(),
+  images: z.array(z.string().min(1)).optional(),
   fabric: z.string().optional(),
   colors: z.array(z.string()).optional(),
   stock: z.coerce.number().int().nonnegative().optional(),
